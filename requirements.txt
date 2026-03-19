@@ -8,3 +8,6 @@ nltk
 transformers
 torch
 streamlit-autorefresh
+spacy
+geopy
+pydeck
