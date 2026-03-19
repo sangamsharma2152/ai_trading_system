@@ -1,0 +1,9 @@
+streamlit
+pandas
+numpy
+requests
+yfinance
+scikit-learn
+nltk
+transformers
+torch
