@@ -1,6 +1,5 @@
 import pandas as pd
-from nlp_engine import extract_locations
-from geo_utils import get_coordinates
+from nlp_engine import extract_locations, get_coordinates
 
 def get_event_locations(news):
     data = []
@@ -16,7 +15,7 @@ def get_event_locations(news):
                     "lat": lat,
                     "lon": lon,
                     "event": n["title"],
-                    "location": loc
+                    "location": loc.upper()
                 })
 
     return pd.DataFrame(data)
