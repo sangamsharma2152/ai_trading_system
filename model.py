@@ -1,6 +1,6 @@
-import numpy as np
+from config import POS_THRESHOLD, NEG_THRESHOLD
 
-def predict(sentiments, prices):
+def predict(sentiments):
     score = 0
 
     for s in sentiments:
@@ -11,20 +11,19 @@ def predict(sentiments, prices):
 
     avg_score = score / len(sentiments)
 
-    # Simple logic (you can upgrade later)
     prediction = {}
 
-    if avg_score > 0.2:
-        prediction["gold"] = "BUY"
-        prediction["silver"] = "BUY"
-        prediction["oil"] = "BUY"
-    elif avg_score < -0.2:
-        prediction["gold"] = "SELL"
-        prediction["silver"] = "SELL"
-        prediction["oil"] = "SELL"
+    if avg_score > POS_THRESHOLD:
+        action = "BUY"
+    elif avg_score < NEG_THRESHOLD:
+        action = "SELL"
     else:
-        prediction["gold"] = "HOLD"
-        prediction["silver"] = "HOLD"
-        prediction["oil"] = "HOLD"
+        action = "HOLD"
+
+    prediction = {
+        "gold": action,
+        "silver": action,
+        "oil": action
+    }
 
     return prediction, avg_score
