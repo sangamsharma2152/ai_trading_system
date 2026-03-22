@@ -5,12 +5,11 @@ def get_event_locations(news):
     data = []
 
     for n in news:
-        locations = extract_locations(n["title"])
+        locs = extract_locations(n["title"])
 
-        for loc in locations:
+        for loc in locs:
             lat, lon = get_coordinates(loc)
-
-            if lat and lon:
+            if lat:
                 data.append({
                     "lat": lat,
                     "lon": lon,
