@@ -9,3 +9,4 @@ transformers
 torch
 streamlit-autorefresh
 pydeck
+plotly
