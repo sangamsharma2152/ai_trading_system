@@ -1,12 +1,24 @@
 import yfinance as yf
 
-def get_prices():
-    gold = yf.download("GC=F", period="1d", interval="1m")
-    silver = yf.download("SI=F", period="1d", interval="1m")
-    oil = yf.download("CL=F", period="1d", interval="1m")
+def safe_fetch(symbol):
+    try:
+        data = yf.download(symbol, period="1d", interval="1m")
 
+        if data.empty:
+            data = yf.download(symbol, period="5d")  # fallback
+
+        if data.empty or "Close" not in data:
+            return None
+
+        return float(data["Close"].dropna().iloc[-1])
+
+    except:
+        return None
+
+
+def get_prices():
     return {
-        "gold": float(gold["Close"].iloc[-1]),
-        "silver": float(silver["Close"].iloc[-1]),
-        "oil": float(oil["Close"].iloc[-1])
+        "gold": safe_fetch("GC=F"),
+        "silver": safe_fetch("SI=F"),
+        "oil": safe_fetch("CL=F")
     }
