@@ -15,3 +15,4 @@ def analyze_sentiment(news_list):
         })
 
     return results
+    
