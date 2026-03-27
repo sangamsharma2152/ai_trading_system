@@ -17,3 +17,4 @@ def extract_locations(text):
 
 def get_coordinates(loc):
     return LOCATIONS.get(loc, (None, None))
+    
