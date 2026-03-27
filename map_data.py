@@ -18,3 +18,4 @@ def get_event_locations(news):
                 })
 
     return pd.DataFrame(data)
+    
