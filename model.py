@@ -27,3 +27,4 @@ def predict(sentiments):
     }
 
     return prediction, avg_score
+    
