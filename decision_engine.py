@@ -8,3 +8,4 @@ def generate_decision(prediction, confidence):
         }
 
     return decisions
+    
