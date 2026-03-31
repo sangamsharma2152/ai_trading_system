@@ -13,3 +13,4 @@ def get_coordinates(location):
         return None, None
 
     return None, None
+    
