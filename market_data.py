@@ -22,3 +22,4 @@ def get_prices():
         "silver": safe_fetch("SI=F"),
         "oil": safe_fetch("CL=F")
     }
+    
