@@ -11,4 +11,4 @@ def detect_event(text):
         return "OIL_MARKET"
     else:
         return "GENERAL"
-        
+
