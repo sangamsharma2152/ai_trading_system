@@ -1,5 +1,5 @@
 import pandas as pd
-from nlp_engine import extract_locations, get_coordinates
+from nlp_engine import extract_locations, get_coordinates   #longitude aur latitude wali file h yeh 
 
 def get_event_locations(news):
     data = []
