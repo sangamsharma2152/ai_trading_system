@@ -1,18 +1,22 @@
 import streamlit as st
 import os
+import sys
+
+# Load Streamlit secrets into environment variables FIRST (for Streamlit Cloud)
+# This must happen before importing config and other modules
+try:
+    for key, value in st.secrets.items():
+        os.environ[key] = str(value)
+except Exception as e:
+    print(f"Note: Streamlit secrets not available (expected on local): {e}")
+
+# Now import everything else
 from streamlit_autorefresh import st_autorefresh
 import yfinance as yf
 import plotly.graph_objects as go
 import pydeck as pdk
 import datetime
 import logging
-
-# Load Streamlit secrets into environment variables (for Streamlit Cloud)
-try:
-    for key, value in st.secrets.items():
-        os.environ[key] = str(value)
-except:
-    pass
 
 # Setup logging first
 import logging_config
