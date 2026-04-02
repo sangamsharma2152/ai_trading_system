@@ -4,6 +4,11 @@ import yfinance as yf
 import plotly.graph_objects as go
 import pydeck as pdk
 import datetime
+import logging
+
+# Setup logging first
+import logging_config
+logger = logging.getLogger(__name__)
 
 from news_fetcher import get_news
 from sentiment import analyze_sentiment
@@ -52,11 +57,40 @@ st.write(f"🕒 Last Updated: {datetime.datetime.now().strftime('%H:%M:%S')}")
 # ==============================
 # 📡 FETCH DATA
 # ==============================
-news = get_news()
-sentiments = analyze_sentiment(news)
-prices = get_prices()
-prediction, confidence = predict(sentiments)
-decisions = generate_decision(prediction, confidence)
+try:
+    logger.info("Starting data fetch...")
+    
+    news = get_news()
+    if not news:
+        st.warning("⚠️ Unable to fetch news. Please check your API configuration.")
+        logger.warning("No news fetched")
+        news = []
+    else:
+        logger.info(f"Fetched {len(news)} news articles")
+    
+    sentiments = analyze_sentiment(news)
+    if not sentiments:
+        st.warning("⚠️ Unable to analyze sentiment. No sentiment data available.")
+        logger.warning("No sentiments analyzed")
+        sentiments = []
+    else:
+        logger.info(f"Analyzed sentiment for {len(sentiments)} articles")
+    
+    prices = get_prices()
+    if not prices or all(v is None for v in prices.values()):
+        st.error("❌ Unable to fetch market prices. Please try again later.")
+        logger.error("Failed to fetch market prices")
+        st.stop()
+    
+    prediction, confidence = predict(sentiments)
+    decisions = generate_decision(prediction, confidence)
+    
+    logger.info(f"Generated decisions with confidence: {confidence:.4f}")
+
+except Exception as e:
+    logger.error(f"Error during data fetch: {e}", exc_info=True)
+    st.error(f"❌ Error fetching data: {e}")
+    st.stop()
 
 # ==============================
 # 🚨 ALERT SYSTEM
@@ -119,7 +153,8 @@ for asset, data in decisions.items():
 
     st.markdown(f"""
     ### {asset.upper()}
-    Signal: {color} **{data['action']}**  
+    Signal: {color} **{data['action']}** 
+
     Confidence: {data['confidence']}%
     """)
 
@@ -169,4 +204,5 @@ for s in sentiments:
     🧠 Event: {event}  
     🎯 Impact: {impact}  
     """)
+
     st.markdown("---")
