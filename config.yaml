@@ -1,0 +1,111 @@
+# AI Trading System Configuration
+# Edit this file to customize the trading system behavior
+
+server:
+  host: localhost
+  port: 8501
+  debug: false
+
+news_api:
+  provider: newsapi
+  timeout: 10
+  retry_count: 3
+  keywords:
+    - gold
+    - oil
+    - inflation
+    - war
+    - economy
+  limit: 20
+
+sentiment_analysis:
+  model: ProsusAI/finbert
+  device: auto  # auto, cpu, cuda
+  batch_size: 32
+  truncate_length: 512
+  positive_threshold: 0.6
+  negative_threshold: 0.4
+
+market_data:
+  update_interval: 60  # seconds
+  symbols:
+    gold: GC=F
+    silver: SI=F
+    oil: CL=F
+  price_timeout: 10
+
+trading:
+  risk_management:
+    max_position_size: 1000
+    stop_loss_percentage: 5.0
+    take_profit_percentage: 10.0
+  
+  signals:
+    positive_threshold: 0.2
+    negative_threshold: -0.2
+  
+  assets:
+    - gold
+    - silver
+    - oil
+
+events:
+  detection:
+    geopolitical_keywords:
+      - war
+      - conflict
+      - military
+      - crisis
+    
+    inflation_keywords:
+      - inflation
+      - price surge
+      - cpi
+    
+    interest_rate_keywords:
+      - interest rate
+      - fed
+      - central bank
+      - monetary policy
+    
+    oil_market_keywords:
+      - oil
+      - crude
+      - energy
+      - opec
+
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file:
+    enabled: true
+    path: logs/trading_app.log
+    max_size: 10485760  # 10MB
+    backup_count: 5
+  console:
+    enabled: true
+
+database:
+  type: sqlite
+  path: trading_history.db
+  cleanup_days: 90
+
+backtesting:
+  initial_balance: 10000
+  fee_percentage: 0.1
+  slippage_percentage: 0.05
+
+visualization:
+  theme: dark
+  chart_height: 400
+  update_frequency: 60  # seconds
+
+notifications:
+  enabled: false
+  email:
+    enabled: false
+    smtp_server: ""
+    sender: ""
+  webhook:
+    enabled: false
+    url: ""
