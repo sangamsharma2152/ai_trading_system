@@ -2,8 +2,9 @@ import re
 
 LOCATIONS = {
     "usa": (37.09, -95.71),
-    "china": (35.86, 104.19),
-    "russia": (61.52, 105.31),
+    "china": (35.86, 104.19),   #isme locations h 
+    "russia": (61.52, 105.31),   #isme aur location add karunga toh woh latitude aur longitude k sath flex hogi 
+
     "ukraine": (48.37, 31.16),
     "india": (20.59, 78.96),
     "iran": (32.42, 53.68),
