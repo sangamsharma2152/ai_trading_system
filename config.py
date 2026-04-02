@@ -43,3 +43,7 @@ TAKE_PROFIT_PERCENTAGE = float(os.getenv("TAKE_PROFIT_PERCENTAGE", "10.0"))
 
 # ⚙️ MODEL CONFIGURATION
 SENTIMENT_MODEL = os.getenv("SENTIMENT_MODEL", "ProsusAI/finbert")
+
+def get_config_value(key, default=None):
+    """Helper function to get config values with defaults"""
+    return os.getenv(key, default)

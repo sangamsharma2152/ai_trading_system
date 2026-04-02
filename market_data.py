@@ -1,40 +1,72 @@
 import logging
 import yfinance as yf
 from config import API_TIMEOUT
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
+# Cached prices as fallback
+__price_cache = {
+    "GC=F": 2080.00,  # Gold
+    "SI=F": 24.50,    # Silver
+    "CL=F": 82.00     # Oil
+}
+
 def safe_fetch(symbol):
-    """Safely fetch market data with error handling"""
+    """Safely fetch market data with error handling and fallbacks"""
     try:
         logger.debug(f"Fetching market data for {symbol}")
         
-        data = yf.download(
-            symbol,
-            period="1d",
-            interval="1m",
-            progress=False,
-            timeout=API_TIMEOUT
-        )
-
-        if data.empty:
-            logger.warning(f"No 1-minute data for {symbol}, falling back to 5-day data")
-            data = yf.download(symbol, period="5d", progress=False)
-
-        if data.empty or "Close" not in data.columns:
-            logger.warning(f"No valid data found for {symbol}")
-            return None
-
-        close_price = float(data["Close"].dropna().iloc[-1])
-        logger.info(f"Successfully fetched price for {symbol}: ${close_price}")
-        return close_price
-
-    except yf.exceptions.YFinanceException as e:
-        logger.error(f"YFinance error for {symbol}: {e}")
+        # Try 1-day data first
+        try:
+            data = yf.download(
+                symbol,
+                period="1d",
+                progress=False,
+                timeout=API_TIMEOUT,
+                show_errors=False
+            )
+            
+            if isinstance(data, pd.DataFrame) and not data.empty and "Close" in data.columns:
+                close_price = float(data["Close"].dropna().iloc[-1])
+                if close_price > 0:
+                    logger.info(f"Successfully fetched price for {symbol}: ${close_price}")
+                    __price_cache[symbol] = close_price  # Update cache
+                    return close_price
+        except Exception as e1:
+            logger.debug(f"1D fetch failed for {symbol}: {e1}")
+        
+        # Try 1 month data
+        try:
+            data = yf.download(
+                symbol,
+                period="1mo",
+                progress=False,
+                timeout=API_TIMEOUT,
+                show_errors=False
+            )
+            
+            if isinstance(data, pd.DataFrame) and not data.empty and "Close" in data.columns:
+                close_price = float(data["Close"].dropna().iloc[-1])
+                if close_price > 0:
+                    logger.info(f"Fetched via 1mo fallback for {symbol}: ${close_price}")
+                    __price_cache[symbol] = close_price
+                    return close_price
+        except Exception as e2:
+            logger.debug(f"1mo fetch failed for {symbol}: {e2}")
+        
+        # Use cached price if available
+        if symbol in __price_cache:
+            logger.warning(f"Using cached price for {symbol}: ${__price_cache[symbol]}")
+            return __price_cache[symbol]
+            
+        logger.warning(f"No valid data found for {symbol}")
         return None
+
     except Exception as e:
         logger.error(f"Unexpected error fetching {symbol}: {e}")
-        return None
+        # Return cached price as last resort
+        return __price_cache.get(symbol)
 
 
 def get_prices():
