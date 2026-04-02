@@ -1,5 +1,5 @@
 
-NEWS_API_KEY = "d5d4ca046c8c417b9c9c6b878bb1a850"
+NEWS_API_KEY = "d5d4ca046c8c417b9c9c6b878bb1a850"  #api chupani h 
 # ⚙️ SETTINGS
 NEWS_LIMIT = 20
 REFRESH_INTERVAL = 60000  # in ms
