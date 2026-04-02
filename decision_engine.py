@@ -1,4 +1,5 @@
-def generate_decision(prediction, confidence):
+def generate_decision(prediction, confidence): #confidence aur decision wali file h 
+    
     decisions = {}
 
     for asset, action in prediction.items():
