@@ -223,7 +223,7 @@ try:
                     # Generate predictions for each commodity
                     for commodity in ["gold", "silver", "oil"]:
                         try:
-                            prediction = predict(text, commodity)
+                            prediction = predict(sentiment, commodity)
                             decision = generate_trading_decisions(
                                 commodity=commodity,
                                 sentiment=sentiment,
@@ -234,8 +234,8 @@ try:
                             
                             signals.append({
                                 "Commodity": commodity.upper(),
-                                "Signal": prediction.get("action", "HOLD"),
-                                "Confidence": f"{prediction.get('confidence', 0):.1%}",
+                                "Signal": prediction.action if hasattr(prediction, 'action') else prediction.get("action", "HOLD"),
+                                "Confidence": f"{(prediction.confidence if hasattr(prediction, 'confidence') else prediction.get('confidence', 0)):.1%}",
                                 "Event": events[0] if events else "GENERAL",
                                 "Location": locations[0] if locations else "Global"
                             })
@@ -314,8 +314,12 @@ except Exception as e:
     st.error("❌ An unexpected error occurred. Please refresh the page.")
     st.error(f"Error details: {str(e)}")
 
-# Auto-refresh
-st.markdown(f"<p style='text-align: center; font-size: 0.8rem; color: gray;'>Auto-refreshing every {refresh_interval} seconds</p>", unsafe_allow_html=True)
-import time
-time.sleep(refresh_interval)
-st.rerun()
+# Auto-refresh using streamlit-autorefresh
+try:
+    from streamlit_autorefresh import rerun_if_updated
+    # Only auto-refresh if enabled by user
+    if refresh_interval > 0:
+        # Convert seconds to milliseconds for autorefresh
+        rerun_if_updated(key="trading_app_refresh", interval=refresh_interval * 1000)
+except ImportError:
+    st.info(f"💡 Tip: App will auto-refresh every {refresh_interval} seconds. Refresh manually using F5 if needed.")
