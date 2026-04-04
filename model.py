@@ -14,32 +14,43 @@ class Prediction:
         self.confidence = confidence
         self.details = details or {}
 
-def predict(sentiments: List[Dict]) -> Prediction:
+def predict(data, commodity=None):
     """
-    Generate trading prediction based on sentiment analysis
+    Generate trading prediction based on sentiment or text
     
     Args:
-        sentiments: List of sentiment dictionaries with 'score' and 'label'
+        data: Either a sentiment dict/str with score, or a list of sentiments, or raw text
+        commodity: Optional commodity name (for context)
     
     Returns:
         Prediction object with action and confidence
     """
     try:
-        if not sentiments:
-            logger.warning("No sentiments provided for prediction")
-            return Prediction("HOLD", 0.0, {"reason": "No sentiment data"})
+        # Handle different input types
+        if isinstance(data, str):
+            # It's raw text, treat it as a single sentiment item
+            scores = [0.0]  # Default score for text
+        elif isinstance(data, dict):
+            # Single sentiment dict
+            if 'score' in data:
+                scores = [data['score']]
+            else:
+                scores = [0.0]
+        elif isinstance(data, list):
+            # List of sentiments
+            scores = []
+            for sentiment in data:
+                if isinstance(sentiment, dict) and 'score' in sentiment:
+                    scores.append(sentiment['score'])
+                elif hasattr(sentiment, 'score'):
+                    scores.append(sentiment.score)
+        else:
+            logger.warning(f"Unknown data type for prediction: {type(data)}")
+            return Prediction("HOLD", 0.0, {"reason": "Unknown data type"})
         
-        # Extract scores from sentiment objects
-        scores = []
-        for sentiment in sentiments:
-            if isinstance(sentiment, dict) and 'score' in sentiment:
-                scores.append(sentiment['score'])
-            elif hasattr(sentiment, 'score'):
-                scores.append(sentiment.score)
-        
-        if not scores:
-            logger.warning("No valid sentiment scores found")
-            return Prediction("HOLD", 0.0, {"reason": "No valid scores"})
+        if not scores or all(s == 0.0 for s in scores):
+            logger.debug(f"No sentiment scores found for {commodity or 'unknown'} commodity")
+            return Prediction("HOLD", 50.0, {"reason": "Insufficient data"})
         
         # Calculate average sentiment
         avg_sentiment = sum(scores) / len(scores)
@@ -55,16 +66,18 @@ def predict(sentiments: List[Dict]) -> Prediction:
             action = "HOLD"
             confidence = 50.0 if avg_sentiment >= 0 else 25.0
         
-        logger.info(f"Prediction: {action} (confidence: {confidence:.2f}%)")
+        commodity_str = f" for {commodity}" if commodity else ""
+        logger.debug(f"Prediction{commodity_str}: {action} (confidence: {confidence:.2f}%)")
         
         return Prediction(
             action=action,
             confidence=confidence,
             details={
                 "avg_sentiment": avg_sentiment,
-                "num_articles": len(scores),
+                "num_scores": len(scores),
                 "threshold_pos": POS_THRESHOLD,
-                "threshold_neg": NEG_THRESHOLD
+                "threshold_neg": NEG_THRESHOLD,
+                "commodity": commodity
             }
         )
     
