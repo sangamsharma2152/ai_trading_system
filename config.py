@@ -47,3 +47,4 @@ SENTIMENT_MODEL = os.getenv("SENTIMENT_MODEL", "ProsusAI/finbert")
 def get_config_value(key, default=None):
     """Helper function to get config values with defaults"""
     return os.getenv(key, default)
+
