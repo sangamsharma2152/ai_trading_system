@@ -21,11 +21,48 @@ except Exception as e:
     sentiment_model = pipeline("sentiment-analysis")
 
 def analyze_sentiment(news_list):
-    """Analyze sentiment of news articles with error handling"""
-    if not news_list:
-        logger.warning("No news articles provided for sentiment analysis")
-        return []
+    """Analyze sentiment of news articles or text with error handling
     
+    Args:
+        news_list: Either a string/text or list of news article dicts
+    
+    Returns:
+        For string input: dict with label and score
+        For list input: list of dicts with sentiment details
+    """
+    if not news_list:
+        logger.warning("No content provided for sentiment analysis")
+        return {"label": "NEUTRAL", "score": 0.0}
+    
+    # Handle string/text input
+    if isinstance(news_list, str):
+        try:
+            text_to_analyze = news_list[:512] if len(news_list) > 512 else news_list
+            result = sentiment_model(text_to_analyze)[0]
+            
+            label = result["label"]
+            score = result["score"]
+            
+            # Normalize labels
+            if label.lower() in ["negative"]:
+                normalized_label = "NEGATIVE"
+                normalized_score = -score
+            elif label.lower() in ["positive"]:
+                normalized_label = "POSITIVE"
+                normalized_score = score
+            else:
+                normalized_label = "NEUTRAL"
+                normalized_score = 0.0
+            
+            return {
+                "label": normalized_label,
+                "score": round(normalized_score, 4)
+            }
+        except Exception as e:
+            logger.error(f"Error analyzing sentiment: {e}")
+            return {"label": "NEUTRAL", "score": 0.0}
+    
+    # Handle list of articles input
     results = []
     
     for idx, news in enumerate(news_list):
